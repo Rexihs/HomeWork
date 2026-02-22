@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# trash
+HomeWork/gost.pdf
+HomeWork/task_23.02.2026/tested.ipynb
+*tested*.ipynb
