@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 class Fluid:
-    def __init__(self, M: float, rho_c: float, xa: float, xy: float, T: float):
+    def __init__(self, M: float, rho_c: float, xa: float, xy: float, T: float, file_PVT: pd):
         """
         Задание параметров флюида
 
@@ -15,13 +15,14 @@ class Fluid:
         xy [%] - Мольная доля диоксида углерода (CO₂).
         T [К] - температура системы, задаётся один раз
         """
-
+        
         # T [К] — температура системы, задаётся один раз
         self.M = M
         self.rho_c = rho_c
         self.xa = xa/100 # Перевод в доли.ед.
         self.xy = xy/100 # Перевод в доли.ед.
         self.T = T
+        self.file_PVT = file_PVT
 
     def get_z(self, P: float) -> float:
         """
@@ -147,7 +148,7 @@ class Fluid:
 
         return ro
 
-    def get_mu(self, P: float, file_PVT: pd) -> float:      # вязкость [сП]
+    def get_mu(self, P: float, T: float) -> float:      # вязкость [сП]
         """
         Расчёт вязкости газа от Р
 
@@ -155,12 +156,14 @@ class Fluid:
         ----------
         P : float
             Давление, атм.
-
+        T : float # Пока не используется
+            Температура, К.
         Возвращает
         ----------
         float
             Вязкость газа, сП.
         """
+        file_PVT = self.file_PVT
 
         return np.interp(P, file_PVT['pressure, atm'], file_PVT['viscosity, cP'])
 
