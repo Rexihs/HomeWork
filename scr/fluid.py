@@ -5,6 +5,10 @@ import pandas as pd
 class Fluid:
     def __init__(self, M: float, rho_c: float, xa: float, xy: float, T: float):
         """
+        Задание параметров флюида
+
+        Параметры
+        ----------
         M [кг/кмоль] - молярная масса
         rho_c [кг/м³] - плотность при стандартных условиях
         xa [%] - Мольная доля азота (N₂).

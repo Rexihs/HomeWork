@@ -1,7 +1,7 @@
 class LinearInterpolator:
     """
     Линейный интерполятор.
-    
+
     Параметры
     ----------
     x : list
@@ -35,10 +35,6 @@ class LinearInterpolator:
         float
             Интерполированное значение y_xp.
         """
-
-        # if not(np.isscalar(xp)): # проверка на иттерабильность
-        #     xp = np.asarray(xp)
-        #     return np.array([self.predict(i) for i in xp])
 
         if not isinstance(xp, (int, float)):
             return [self.predict(i) for i in xp]
