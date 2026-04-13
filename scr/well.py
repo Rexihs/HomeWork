@@ -26,38 +26,42 @@ class Well:
         self.rw = rw
         self.pipe = pipe
 
-    def C(self, P_res: float, T_res: float) -> float:
+    def C(self, P_res: float) -> float:
         """
         Коэффициента продуктивности скважины
+        b*k*h / (mu * ln(re/rw))
 
         Параметры
         ----------
         P_res [атм] - пластовое давление
-        T_res [К] - пластовая температура
         """
 
         beta = 0.00852702 # Переводной коэффициент
-        mu = self.fluid.get_mu(P_res, T_res)
-        z = self.fluid.get_z(P_res)
+        mu = self.fluid.get_mu(P_res)
 
-        return beta * self.k * self.h / (mu * z * np.log(self.re / self.rw))
+        # В случае квадратичного закона фильтрации для газа:
+        # z = self.fluid.get_z(P_res)
+        # return beta * self.k * self.h / (mu * z * np.log(self.re / self.rw))
 
-    def q(self, resprops: ResProps, P_bhp: float) -> float:
+        return beta * self.k * self.h / (mu * np.log(self.re / self.rw))
+
+    def q(self, P_res, P_bhp: float) -> float:
         """
         Расчёт дебита скважины
         q = c * (▲P), ст. м3/сут
 
         Параметры
-        ----------
-        resprops - свойства пласта (P_res, T_res)
+        ----------s
         P_res [атм] - пластовое давление
-        T_res [К] - пластовая температура
         P_bhp [атм] - забойное давление
         """
 
-        C = self.C(resprops.P, resprops.T)
+        C = self.C(P_res)
 
-        return C * (resprops.P**2 - P_bhp**2)
+        # В случае квадратичного закона фильтрации для газа:
+        # return C * (P_res**2 - P_bhp**2)
+
+        return C * (P_res - P_bhp)
 
     def bhp(self, THP: float, q_std: float) -> float:
         """
@@ -74,17 +78,17 @@ class Well:
 
         return THP + state.dP
 
-    # def ipr_curve(self, P_res: float, n_points: int = 20):
-    #     """
-    #     Построение IPR-кривой
+    def ipr_curve(self, P_res: float, n_points: int = 20):
+        """
+        Построение IPR-кривой
 
-    #     Параметры
-    #     ----------
-    #     P_res [атм] - пластовое давление
-    #     n_points = 20 [шт] - количество точек кривой
-    #     """
+        Параметры
+        ----------
+        P_res [атм] - пластовое давление
+        n_points = 20 [шт] - количество точек кривой
+        """
 
-    #     bhp = np.linspace(0, P_res, n_points)
-    #     q_std = [self.q(P_res, bhp) for bhp in bhp_point]
+        bhp_point = np.linspace(0, P_res, n_points)
+        q_std = [self.q(P_res, bhp) for bhp in bhp_point]
 
-    #     return bhp_point, q_std
+        return bhp_point, q_std
