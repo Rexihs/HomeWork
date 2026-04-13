@@ -148,7 +148,7 @@ class Fluid:
 
         return ro
 
-    def get_mu(self, P: float, T: float) -> float:      # вязкость [сП]
+    def get_mu(self, P: float, T: float = 293.15) -> float:      # вязкость [сП]
         """
         Расчёт вязкости газа от Р
 
