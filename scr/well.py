@@ -74,9 +74,9 @@ class Well:
         q_std [м3/сут] - дебит в ст. условиях
         """
 
-        state = self.pipe.dp(THP, q_std)
+        dp = self.pipe.dp(THP, q_std)
 
-        return THP + state.dP
+        return THP + dp
 
     def ipr_curve(self, P_res: float, n_points: int = 20):
         """
