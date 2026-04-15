@@ -38,7 +38,7 @@ class Pipe:
 
         # Реализация с разбиением на участки по 100 метров
 
-        P = THP # Первая точка, давление = Руст
+        Pi = THP # атм Первая точка, давление = Руст
         dl = 100  # шаг по длине, м
         n_steps = int(self.L // dl) # кол-во шагов
 
@@ -58,9 +58,9 @@ class Pipe:
             dz = dl_i * (self.vertical_depth / self.L)
 
             # свойства газа при давлении в точке Pi
-            ro = self.fluid.get_ro(P) # кг/м3
-            Bg = self.fluid.get_bg(P) # дол.ед.
-            mu = self.fluid.get_mu(P) * 1e-3 # Па*с
+            ro = self.fluid.get_ro(Pi) # кг/м3
+            Bg = self.fluid.get_bg(Pi) # дол.ед.
+            mu = self.fluid.get_mu(Pi) * 1e-3 # Па*с
 
             u = q_std / 86400 * Bg / (np.pi * self.D**2 / 4) # м/с
 
@@ -77,15 +77,16 @@ class Pipe:
                 lyambda = scipy.optimize.fsolve(colebrook_eq, 0.02)[0]
     
             # потери давления
+            print(lyambda)
             dp_fric = lyambda * (dl_i / self.D) * (ro * u**2 / 2) # На трение
             dp_grav = ro * 9.80665 * dz # Гравитационная составляющая
-    
             dp_i = (dp_fric + dp_grav) / 101325  # атм
     
             # Давление следующей точке Pi+1
-            P += dp_i
+            Pi += dp_i
+            # print(f'Iteration {i}: Pi = {Pi}')
 
-        return P
+        return (Pi - THP)
 
         # # Без разбиения на участки, запасной вариант
         # ro = self.fluid.get_ro(THP) # кг/м3
