@@ -26,4 +26,4 @@ class DCS:
         if self.CR == 1.0:
             return self.P_line
 
-        return self.P_line * self.CR
+        return self.P_line / self.CR
