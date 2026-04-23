@@ -5,8 +5,9 @@ from scr.compressor import DCS
 from scr.state import NodeState
 
 class FieldSimulator:
-    def __init__(self,
+    def __init__(self, 
         reservoir: Reservoir,
+        respops: ResProps,
         wells: list,      # список из 3 объектов Well
         shlyf: Pipe,
         dcs: DCS
@@ -30,6 +31,13 @@ class FieldSimulator:
     def solve(self, P_res: float) -> dict[str, NodeState]:
         # возвращает словарь NodeState по именам элементов:
         # 'well_1', 'well_2', 'well_3', 'shlyf', 'dcs'
+        
+        # Начальное приблежение:
+        P_bhp = ResProps.P - 1
+        self.wells.q(ResProps.P,P_bhp)
+
+        DCS.P_in()
+
         pass
 
     def run(self, N_days: int, dt: float = 1.0) -> DataFrame:
