@@ -40,17 +40,18 @@ class Fluid:
         """
         P = P/9.8692327 # Перевод атм в МПа
 
-        # Блок проверки на условия применимости
-        T = self.T # К
-        if not(self.rho_c > 0.668 and self.rho_c < 0.700):
-            print(f'Attention - плотность газа в не диапазона 0.668 < ro < 0.700 кг/м3, ro:{self.rho_c}')
-        if not(T > 250 and T < 330):
-            print(f'Attention - температура газа в не диапазона 250 < T < 340 K, K:{T}')
-        if not(P > 0 and P < 12):
-            if P > 0 and P < 30:
-                print(f'Attention - давление газа в не диапазона 0 < P < 12 МПа, P:{P}, погрешность расчёта +/- 3,0%')
-            else:
-                print(f'Attention - давление газа в не диапазона 0 < P < 30 МПа, P:{P}')
+        # Мешает в дебаге
+        # # Блок проверки на условия применимости
+        # T = self.T # К
+        # if not(self.rho_c > 0.668 and self.rho_c < 0.700):
+        #     print(f'Attention - плотность газа в не диапазона 0.668 < ro < 0.700 кг/м3, ro:{self.rho_c}')
+        # if not(T > 250 and T < 330):
+        #     print(f'Attention - температура газа в не диапазона 250 < T < 340 K, K:{T}')
+        # if not(P > 0 and P < 12):
+        #     if P > 0 and P < 30:
+        #         print(f'Attention - давление газа в не диапазона 0 < P < 12 МПа, P:{P}, погрешность расчёта +/- 3,0%')
+        #     else:
+        #         print(f'Attention - давление газа в не диапазона 0 < P < 30 МПа, P:{P}')
 
         T = self.T # К
         xa = self.xa # дол.ед, азот
