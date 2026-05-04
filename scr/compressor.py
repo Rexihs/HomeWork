@@ -14,7 +14,6 @@ class DCS:
         self.P_line = float(P_line)
         self.q_ext = float(q_ext)
 
-
     def P_in(self) -> float:
         """
         Давление на входе в ДКС [атм].
@@ -27,3 +26,21 @@ class DCS:
             return self.P_line
 
         return self.P_line / self.CR
+    
+    def P_out(self, P_in, Q) -> float:
+        """
+        Давление на выходе из ДКС (атм).
+
+        P_in : Давление на входе в ДКС (атм)
+        Q : Расход газа на входе в ДКС (ст.м3) !-Пока не учитывается
+
+        При CR = 1.0 станция считается отключенной, поэтому давление
+        на входе равно давлению в магистрали.
+        """
+
+        Q_total = Q + self.q_ext
+
+        if self.CR == 1.0:
+            return self.P_line
+
+        return P_in*self.CR
