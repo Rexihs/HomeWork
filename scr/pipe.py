@@ -22,15 +22,17 @@ class Pipe:
         self.vertical_depth = vertical_depth
         self.fluid = fluid
     
-    def pwf_to_wh(self, P_bhp, q_std):
+    def pwf_to_wh(self, P_in, q_std):
         """
-        Расчёт устьевого давления по Дарси–Вейсбаху
-        интегрирование BHP to THP
+        1 - well / 2 - pipe
+        1. Расчёт устьевого давления по Дарси–Вейсбаху
+        2. Расчёт давление на выходе из pipe
+            Интегрирование BHP to THP
 
-        P_bhp [атм] - забойное давление
+        P_in [атм] - забойное давление / давление на входе
         q_std [ст.м3/сут]
         """
-        P = float(P_bhp)
+        P = float(P_in)
 
         dl = 100
         n_steps = int(self.L // dl)
@@ -83,13 +85,13 @@ class Pipe:
 
     def dp(self, THP, q_std):
 
-        def func(P_bhp):
-            P_bhp = float(P_bhp)
-            P_wh_calc = self.pwf_to_wh(P_bhp, q_std)
+        def func(P_in):
+            P_in = np.atleast_1d(P_in)[0]
+            P_wh_calc = self.pwf_to_wh(P_in, q_std)
             return P_wh_calc - THP
 
-        P_bhp_guess = THP + 50  # старт
+        P_in_guess = THP + 50  # Начальное приближение
 
-        P_bhp = scipy.optimize.fsolve(func, P_bhp_guess)[0]
+        P_in = scipy.optimize.fsolve(func, P_in_guess)[0]
 
-        return P_bhp - THP
+        return P_in - THP
