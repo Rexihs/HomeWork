@@ -15,10 +15,6 @@ class ResProps:
         self.V = V  # м3
         self.T = T  # К
 
-    def __repr__(self):
-        return json.dumps(self.__dict__, indent=4)
-
-
 class Reservoir:
 
     def __init__(self, resprops, fluid):
