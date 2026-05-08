@@ -69,11 +69,16 @@ class FieldSimulator:
             q_shlyf = q_total + self.dcs.q_ext
             P_shlyf_out = self.shlyf.pwf_to_wh(P_man, q_shlyf)
 
-            eqs = []
+            eqs = [] # Вектор невязок, (1-3 по скв, 4 вход/выход ДКС)
             for i in range(len(self.wells)):
                 eqs.append(THP[i] - P_man)
 
-            eqs.append(P_shlyf_out - self.dcs.P_in())
+            # 1.первый способ - относительно входа в ДКС
+            # eqs.append(P_shlyf_out - self.dcs.P_in())
+
+            # 2.второй способ - относительно выхода из ДКС
+            P_DCS_out = self.dcs.P_out(P_shlyf_out,q_shlyf) # Берём давление на выходе из шлейфа
+            eqs.append(P_DCS_out - self.dcs.P_line)
 
             return eqs
 
@@ -85,7 +90,7 @@ class FieldSimulator:
             x0.append(P_res - 500 / c if c != 0 else P_res - 10)
         x0.append(P_man)
 
-        # Балансировка системы скважин по THP - устьевому давлению
+        # Балансировка системы скважин по THP - устьевому давлению и давлению на конечной точке (вход/выход ДКС)
         sol = scipy.optimize.fsolve(system, x0)
 
         BHP = sol[:len(self.wells)]
@@ -117,9 +122,9 @@ class FieldSimulator:
             )
 
         q_shlyf = q_total + self.dcs.q_ext
-        P_dcs_in = self.dcs.P_in()
         P_shlyf_out = self.shlyf.pwf_to_wh(P_man, q_shlyf)
-        P_dcs_out = self.dcs.P_out(P_dcs_in, q_total)
+        P_dcs_in = P_shlyf_out # Давление на входе равно давлению на выходе из шлейфа
+        P_dcs_out = self.dcs.P_out(P_dcs_in, q_shlyf) # Давление на выходе из ДКС
 
         states['shlyf'] = NodeState(
             name='shlyf',
@@ -148,4 +153,5 @@ class FieldSimulator:
     def run(self, N_days: int, dt: float = 1.0) -> pd:
         # колонки: t [сут], P_res [атм], P_man [атм],
         #          q1, q2, q3, q_total [ст.м³/сут], Gp [тыс.ст.м³]
+        
         pass
