@@ -29,6 +29,7 @@ class FieldSimulator:
         self.wells = wells
         self.shlyf = shlyf
         self.dcs = dcs
+        self.prev_solution = None # Начальное приблежение с прошлого шага
 
     def solve(self, P_res: float) -> dict[str, NodeState]:
         """
@@ -58,6 +59,15 @@ class FieldSimulator:
             q_wells = []
             THP = []
 
+            # Ограничения по забойному давлению
+            for i in range(len(BHP)):
+            
+                if BHP[i] < 1:
+                    return [1e6] * (len(self.wells) + 1)
+
+                if BHP[i] > P_res:
+                    return [1e6] * (len(self.wells) + 1)
+
             # Расчёт дебитов и устьевого давления по скважинам
             for i, well in enumerate(self.wells):
                 qi = well.q(P_res, BHP[i])
@@ -82,16 +92,36 @@ class FieldSimulator:
 
             return eqs
 
-        P_man = self.dcs.P_in()+5 # Начальное приблежение давление на манифольде
-        # начальное приближение забойного давления по сквжинам
-        x0 = []
-        for well in self.wells:
-            c = well.C(P_res)
-            x0.append(P_res - 500 / c if c != 0 else P_res - 10)
-        x0.append(P_man)
+        if self.prev_solution is None:
+
+            x0 = []
+            for well in self.wells:
+                # x0.append(P_res * 0.9) # Для квадратичного закона
+                c = well.C(P_res)
+                x0.append(P_res - 500 / c if c != 0 else P_res - 10)
+
+            P_man0 = self.dcs.P_in() + 5
+            x0.append(P_man0)
+
+        else:
+            x0 = self.prev_solution # Берём решение с прошлого шага
 
         # Балансировка системы скважин по THP - устьевому давлению и давлению на конечной точке (вход/выход ДКС)
-        sol = scipy.optimize.fsolve(system, x0)
+        # sol = scipy.optimize.fsolve(system, x0)
+
+        lower_bounds = [1] * len(self.wells) + [1]
+        upper_bounds = [P_res] * len(self.wells) + [P_res]
+
+        result = scipy.optimize.least_squares(
+            system,
+            x0,
+            bounds=(lower_bounds, upper_bounds),
+            method='trf'
+        )
+
+        # Сохраняем решение для следующего шага
+        self.prev_solution = result.x
+        sol = result.x
 
         BHP = sol[:len(self.wells)]
         P_man = sol[-1]
