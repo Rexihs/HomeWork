@@ -180,8 +180,50 @@ class FieldSimulator:
 
         return states
 
-    def run(self, N_days: int, dt: float = 1.0) -> pd:
+    def run(self, N_days: int, dt: float = 1.0) -> pd.DataFrame:
         # колонки: t [сут], P_res [атм], P_man [атм],
         #          q1, q2, q3, q_total [ст.м³/сут], Gp [тыс.ст.м³]
-        
-        pass
+        results = []
+        Gp = 0.0
+        n_steps = int(N_days / dt)
+
+        for step in range(n_steps):
+            t = step * dt
+            P_res = self.reservoir.resprops.P
+
+            states = self.solve(P_res)
+
+            q1 = states['well_1'].q_std
+            q2 = states['well_2'].q_std
+            q3 = states['well_3'].q_std
+
+            # Проверка на отрицательность дебита, если так q==0
+            q1 = max(0.0, q1)
+            q2 = max(0.0, q2)
+            q3 = max(0.0, q3)
+
+            q_total = q1 + q2 + q3
+            q_dcs = states['dcs'].q_std
+            P_man = states['shlyf'].P_in
+            Gp += q_total * dt
+
+            results.append({
+                't': t,
+                'P_res': P_res,
+                'P_man': P_man,
+
+                'q1': q1,
+                'q2': q2,
+                'q3': q3,
+
+                'q_total': q_total,
+                'q_dcs': q_dcs,
+
+                'Gp': Gp
+                })
+
+            P_new = self.reservoir.p2(q_total, dt=dt)
+            self.reservoir.resprops.P = P_new
+
+        df = pd.DataFrame(results)
+        return df
