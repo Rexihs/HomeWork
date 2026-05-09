@@ -40,10 +40,10 @@ class Well:
         mu = self.fluid.get_mu(P_res)
 
         # В случае квадратичного закона фильтрации для газа:
-        # z = self.fluid.get_z(P_res)
-        # return beta * self.k * self.h / (mu * z * np.log(self.re / self.rw))
+        z = self.fluid.get_z(P_res)
+        return beta * self.k * self.h / (mu * z * np.log(self.re / self.rw))
 
-        return beta * self.k * self.h / (mu * np.log(self.re / self.rw))
+        # return beta * self.k * self.h / (mu * np.log(self.re / self.rw))
 
     def q(self, P_res, P_bhp: float) -> float:
         """
@@ -60,9 +60,9 @@ class Well:
 
         # FIXME: Разобраться с флуктуациями в графиках добычи при использовании квадратичной функции
         # В случае квадратичного закона фильтрации для газа:
-        # return C * (P_res**2 - P_bhp**2)
+        return C * (P_res**2 - P_bhp**2)
 
-        return C * (P_res - P_bhp)
+        # return C * (P_res - P_bhp)
 
     def bhp(self, THP: float, q_std: float) -> float:
         """
