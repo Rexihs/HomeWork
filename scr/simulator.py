@@ -184,6 +184,7 @@ class FieldSimulator:
         # колонки: t [сут], P_res [атм], P_man [атм],
         #          q1, q2, q3, q_total [ст.м³/сут], Gp [тыс.ст.м³]
         results = []
+        states_result = []
         Gp = 0.0
         n_steps = int(N_days / dt)
 
@@ -192,6 +193,7 @@ class FieldSimulator:
             P_res = self.reservoir.resprops.P
 
             states = self.solve(P_res)
+            states_result.append(states)
 
             q1 = states['well_1'].q_std
             q2 = states['well_2'].q_std
@@ -226,4 +228,5 @@ class FieldSimulator:
             self.reservoir.resprops.P = P_new
 
         df = pd.DataFrame(results)
-        return df
+        df_states = pd.DataFrame(states_result)
+        return df, df_states
