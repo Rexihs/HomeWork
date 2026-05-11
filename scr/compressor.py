@@ -41,7 +41,4 @@ class DCS:
         # Q_total = Q + self.q_ext # Учитываем в Q при вызове функции
         # TODO: попробовать написать функцию P_out учитывающую расход газа
 
-        if self.CR == 1.0:
-            return self.P_line
-
         return P_in*self.CR
