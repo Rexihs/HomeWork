@@ -1,3 +1,5 @@
+from matplotlib.pyplot import step
+
 from scr.reservoir import Reservoir, ResProps
 from scr.well import Well
 from scr.pipe import Pipe
@@ -100,7 +102,7 @@ class FieldSimulator:
                 c = well.C(P_res)
                 x0.append(P_res - 500 / c if c != 0 else P_res - 10)
 
-            P_man0 = self.dcs.P_in() + 5
+            P_man0 = self.dcs.P_line / self.dcs.CR + 5
             x0.append(P_man0)
 
         else:
@@ -180,13 +182,14 @@ class FieldSimulator:
 
         return states
 
-    def run(self, N_days: int, dt: float = 1.0) -> pd.DataFrame:
+    def run(self, N_days: int, dt: float = 1.0) -> tuple[pd.DataFrame, pd.DataFrame]:
         # колонки: t [сут], P_res [атм], P_man [атм],
         #          q1, q2, q3, q_total [ст.м³/сут], Gp [тыс.ст.м³]
         results = []
         states_result = []
         Gp = 0.0
-        n_steps = int(N_days / dt)
+        # n_steps = int(N_days / dt) + 1
+        n_steps = N_days
 
         for step in range(n_steps):
             t = step * dt
@@ -226,6 +229,13 @@ class FieldSimulator:
 
             P_new = self.reservoir.p2(q_total, dt=dt)
             self.reservoir.resprops.P = P_new
+
+            if step % 10 == 0 or step == n_steps - 1:
+                print(f'Шаг {step+1}/{n_steps} | '
+                      f't={t:.1f} сут | '
+                      f'P_res={P_res:.2f} атм | '
+                      f'P_man={P_man:.2f} атм | '
+                      f'q_total={q_total:.2f} ст.м3/сут')
 
         df = pd.DataFrame(results)
         df_states = pd.DataFrame(states_result)
