@@ -149,6 +149,27 @@ class Fluid:
 
         return ro
 
+    def get_ideal_ro(self, P: float) -> float:      # плотность [кг/м³]
+        """
+        Расчёт плотости идеального газа ro.
+        ----------
+        ro = P*M/(R*T)
+
+        Параметры
+        ----------
+        P : float
+            Давление, атм.
+
+        Возвращает
+        ----------
+        float
+            Плотность газа, кг/м³.
+        """
+
+        ro_ideal = (P*101325*self.M*10**-3)/(8.314462618*self.T)
+
+        return ro_ideal
+
     def get_mu(self, P: float, T: float = 293.15) -> float:      # вязкость [сП]
         """
         Расчёт вязкости газа от Р
