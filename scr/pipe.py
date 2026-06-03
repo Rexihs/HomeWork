@@ -90,8 +90,33 @@ class Pipe:
             P_wh_calc = self.pwf_to_wh(P_in, q_std)
             return P_wh_calc - THP
 
-        P_in_guess = THP + 50  # Начальное приближение
+        P_in_guess = THP + 10  # Начальное приближение
 
         P_in = scipy.optimize.fsolve(func, P_in_guess)[0]
 
         return P_in - THP
+
+    def get_vlp_point(self, THP, q_std):
+    
+        rho = self.fluid.get_ro(THP)
+        Bg = self.fluid.get_bg(THP)
+        mu = self.fluid.get_mu(THP) * 1e-3
+        A = np.pi * self.D**2 / 4
+        u = q_std * Bg / 86400 / A
+        Re = rho * u * self.D / mu
+    
+        if Re < 2300:
+            lam = 64/Re
+        else:
+            def colebrook_eq(lmbd):
+                return 1/np.sqrt(lmbd) + 2*np.log10(
+                    self.roughness/(3.7*self.D) + 2.51/(Re*np.sqrt(lmbd))
+                )
+            
+            lam = scipy.optimize.fsolve(colebrook_eq, 0.02)[0]
+    
+        dp_fric = lam * (self.L/self.D) * (rho*u*u/2)
+        dp_grav = rho * 9.81 * self.vertical_depth
+        dp = (dp_fric + dp_grav)/101325
+    
+        return THP + dp
