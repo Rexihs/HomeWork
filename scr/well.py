@@ -61,7 +61,7 @@ class Well:
         # В случае квадратичного закона фильтрации для газа:
         # return C * (P_res**2 - P_bhp**2)
 
-        return C * (P_res - P_bhp)
+        return C * (P_res - P_bhp) / self.fluid.get_bg(P_res)
 
     def bhp(self, THP: float, q_std: float) -> float:
         """
